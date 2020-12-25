@@ -337,7 +337,9 @@ class TaskViewSet(auth.TaskGetQuerySetMixin, viewsets.ModelViewSet):
         http_method = self.request.method
         permissions = [IsAuthenticated]
 
-        if http_method in SAFE_METHODS:
+        if self.action == 'annotations':
+            permissions.append(auth.AdminRolePermission)
+        elif http_method in SAFE_METHODS:
             permissions.append(auth.TaskAccessPermission)
         elif http_method in ["POST"]:
             permissions.append(auth.TaskCreatePermission)
@@ -650,6 +652,10 @@ class TaskViewSet(auth.TaskGetQuerySetMixin, viewsets.ModelViewSet):
         url_path='dataset')
     def dataset_export(self, request, pk):
         db_task = self.get_object() # force to call check_object_permissions
+        admin_perm = auth.AdminRolePermission()
+        is_admin = admin_perm.has_permission(self.request, self)
+        if not is_admin:
+            return Response(data="No access!", status=status.HTTP_403_FORBIDDEN)
 
         format_name = request.query_params.get("format", "")
         return _export_annotations(db_task=db_task,
