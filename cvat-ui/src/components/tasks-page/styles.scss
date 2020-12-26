@@ -124,6 +124,12 @@
     margin-right: 5px;
 }
 
+.cvat-task-assigned-progress {
+    color: $assigned-progress-color;
+    fill: $assigned-progress-color;
+    margin-right: 5px;
+}
+
 .cvat-task-pending-progress {
     color: $pending-progress-color;
     fill: $pending-progress-color;

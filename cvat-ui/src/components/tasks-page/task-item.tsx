@@ -74,6 +74,11 @@ class TaskItemComponent extends React.PureComponent<TaskItemProps & RouteCompone
         const numOfJobs = taskInstance.jobs.length;
         const numOfCompleted = taskInstance.jobs.filter((job: any): boolean => job.status === 'completed').length;
 
+        var assignee = taskInstance.assignee;
+        if (assignee == null) {
+            assignee = numOfJobs > 0 ? taskInstance.jobs[0].assignee : null;
+        }
+
         // Progress appearence depends on number of jobs
         let progressColor = null;
         let progressText = null;
@@ -89,6 +94,15 @@ class TaskItemComponent extends React.PureComponent<TaskItemProps & RouteCompone
             progressText = (
                 <Text strong className={progressColor}>
                     In Progress
+                </Text>
+            );
+        } else if (assignee) {
+            progressColor = 'cvat-task-assigned-progress';
+            var assignee_name = assignee.username;
+            // assignee_name = JSON.stringify(assignee);
+            progressText = (
+                <Text strong className={progressColor}>
+                    Assignee: {assignee_name}
                 </Text>
             );
         } else {
