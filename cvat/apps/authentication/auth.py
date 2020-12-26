@@ -12,6 +12,7 @@ from django.core import signing
 from rest_framework import authentication, exceptions
 from rest_framework.authentication import TokenAuthentication as _TokenAuthentication
 from django.contrib.auth import login
+from ..engine.models import Project
 
 # Even with token authorization it is very important to have a valid session id
 # in cookies because in some cases we cannot use token authorization (e.g. when
@@ -249,10 +250,14 @@ class ProjectGetQuerySetMixin(object):
         if has_admin_role(user) or has_observer_role(user) or self.detail:
             return queryset
         else:
-            return queryset.filter(Q(owner=user) | Q(assignee=user) |
-                Q(task__owner=user) | Q(task__assignee=user) |
-                Q(task__segment__job__assignee=user) |
-                Q(task__segment__job__reviewer=user)).distinct()
+            query_filter = Q(owner=user) | Q(assignee=user) |\
+                Q(task__owner=user) | Q(task__assignee=user) |\
+                Q(task__segment__job__assignee=user) |\
+                Q(task__segment__job__reviewer=user)
+
+            for g in user.groups.all():
+                query_filter |= Q(name=g.name)
+            return queryset.filter(query_filter).distinct()
 
 def filter_task_queryset(queryset, user):
     # Don't filter queryset for admin, observer
@@ -261,8 +266,18 @@ def filter_task_queryset(queryset, user):
 
     query_filter = Q(owner=user) | Q(assignee=user) | \
         Q(segment__job__assignee=user) | Q(segment__job__reviewer=user)
-    if not settings.RESTRICTIONS['reduce_task_visibility']:
-        query_filter |= Q(assignee=None)
+
+    # выбираем проекты по имени группы
+    project_filter = Q(owner=user)
+    for g in user.groups.all():
+        project_filter |= Q(name=g.name)
+    projects = Project.objects.filter(project_filter)
+
+    for proj in projects:
+        query_filter |= Q(project_id=proj.id)
+
+    # if not settings.RESTRICTIONS['reduce_task_visibility']:
+    #     query_filter |= Q(assignee=None)
 
     return queryset.filter(query_filter).distinct()
 
