@@ -342,7 +342,7 @@
 
                 let response = null;
                 try {
-                    response = await Axios.get(`${backendAPI}/projects?page_size=12&${filter}`, {
+                    response = await Axios.get(`${backendAPI}/projects?page_size=40&${filter}`, {
                         proxy,
                     });
                 } catch (errorData) {
@@ -399,7 +399,7 @@
 
                 let response = null;
                 try {
-                    response = await Axios.get(`${backendAPI}/tasks?page_size=10&${filter}`, {
+                    response = await Axios.get(`${backendAPI}/tasks?page_size=40&${filter}`, {
                         proxy: config.proxy,
                     });
                 } catch (errorData) {
