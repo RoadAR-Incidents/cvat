@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import {
     propagateObject as propagateObjectAction,
     changePropagateFrames as changePropagateFramesAction,
-    propagateObjectAsync,
+    propagateObjectAsync, propagateDeleteObjectAsync
 } from 'actions/annotation-actions';
 
 import { CombinedState } from 'reducers/interfaces';
@@ -54,7 +54,7 @@ function mapStateToProps(state: CombinedState): StateToProps {
 function mapDispatchToProps(dispatch: any): DispatchToProps {
     return {
         propagateObject(sessionInstance: any, objectState: any, from: number, to: number): void {
-            dispatch(propagateObjectAsync(sessionInstance, objectState, from, to));
+            dispatch(propagateDeleteObjectAsync(sessionInstance, objectState, from, to));
         },
         changePropagateFrames(frames: number): void {
             dispatch(changePropagateFramesAction(frames));

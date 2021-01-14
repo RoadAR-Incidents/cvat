@@ -74,6 +74,7 @@ class TaskItemComponent extends React.PureComponent<TaskItemProps & RouteCompone
         const numOfJobs = taskInstance.jobs.length;
         const numOfCompleted = taskInstance.jobs.filter((job: any): boolean => job.status === 'completed').length;
 
+        const isValidation = taskInstance.status === 'validation'
         var assignee = taskInstance.assignee;
         if (assignee == null) {
             assignee = numOfJobs > 0 ? taskInstance.jobs[0].assignee : null;
@@ -97,12 +98,19 @@ class TaskItemComponent extends React.PureComponent<TaskItemProps & RouteCompone
                 </Text>
             );
         } else if (assignee) {
-            progressColor = 'cvat-task-assigned-progress';
+            progressColor = isValidation ? 'cvat-task-validation-progress' : 'cvat-task-assigned-progress';
             var assignee_name = assignee.username;
-            // assignee_name = JSON.stringify(assignee);
+            var status = isValidation ? "Validation" : "Assignee";
             progressText = (
                 <Text strong className={progressColor}>
-                    Assignee: {assignee_name}
+                    {status}: {assignee_name}
+                </Text>
+            );
+        } else if (isValidation) {
+            progressColor = 'cvat-task-validation-progress';
+            progressText = (
+                <Text strong className={progressColor}>
+                    Validation
                 </Text>
             );
         } else {

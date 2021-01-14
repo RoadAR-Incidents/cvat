@@ -157,6 +157,9 @@ export enum AnnotationActionTypes {
     PROPAGATE_OBJECT = 'PROPAGATE_OBJECT',
     PROPAGATE_OBJECT_SUCCESS = 'PROPAGATE_OBJECT_SUCCESS',
     PROPAGATE_OBJECT_FAILED = 'PROPAGATE_OBJECT_FAILED',
+    PROPAGATE_DELETE_OBJECT = 'PROPAGATE_DELETE_OBJECT',
+    PROPAGATE_DELETE_OBJECT_SUCCESS = 'PROPAGATE_DELETE_OBJECT_SUCCESS',
+    PROPAGATE_DELETE_OBJECT_FAILED = 'PROPAGATE_DELETE_OBJECT_FAILED',
     CHANGE_PROPAGATE_FRAMES = 'CHANGE_PROPAGATE_FRAMES',
     SWITCH_SHOWING_STATISTICS = 'SWITCH_SHOWING_STATISTICS',
     COLLECT_STATISTICS = 'COLLECT_STATISTICS',
@@ -437,6 +440,46 @@ export function showStatistics(visible: boolean): AnyAction {
         payload: {
             visible,
         },
+    };
+}
+
+export function propagateDeleteObjectAsync(sessionInstance: any, objectState: any, from: number, to: number): ThunkAction {
+    return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+        try {
+            const copy = {
+                points: objectState.points,
+                objectType: objectState.objectType !== ObjectType.TRACK ? objectState.objectType : ObjectType.SHAPE,
+                shapeType: objectState.shapeType,
+                label: objectState.label,
+                frame: from,
+            };
+
+            await sessionInstance.logger.log(LogType.propagateObject, { count: to - from + 1 });
+            const states = [];
+            for (let frame = from; frame <= to; frame++) {
+                copy.frame = frame;
+                const newState = new cvat.classes.ObjectState(copy);
+                states.push(newState);
+            }
+
+            await sessionInstance.annotations.put(states);
+            const history = await sessionInstance.actions.get();
+
+            dispatch({
+                type: AnnotationActionTypes.PROPAGATE_OBJECT_SUCCESS,
+                payload: {
+                    objectState,
+                    history,
+                },
+            });
+        } catch (error) {
+            dispatch({
+                type: AnnotationActionTypes.PROPAGATE_OBJECT_FAILED,
+                payload: {
+                    error,
+                },
+            });
+        }
     };
 }
 
