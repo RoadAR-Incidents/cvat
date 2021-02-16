@@ -1,0 +1,7 @@
+services:
+  cvat_proxy:
+    environment:
+      CVAT_HOST: vpn.roadar.ru:28137
+      ALLOWED_HOSTS: "*"
+    ports:
+      - '80:28147'

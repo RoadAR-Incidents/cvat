@@ -1,0 +1,5 @@
+services:
+  cvat_proxy:
+    environm
+    ports:
+      - '80:28137'

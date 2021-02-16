@@ -702,6 +702,7 @@
             }
 
             for (const state of objectStates) {
+                console.log("••••", state)
                 checkObjectType('object state', state, null, ObjectState);
                 checkObjectType('state client ID', state.clientID, 'undefined', null);
                 checkObjectType('state frame', state.frame, 'integer', null);
